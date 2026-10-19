@@ -1,0 +1,11 @@
+--- /home/magnetic-fox/opvxa24xx/callerid.c	2026-09-10 03:33:58.000000000 +0200
++++ callerid.c	2026-10-07 16:59:23.976419773 +0200
+@@ -649,7 +649,7 @@
+     int yg;
+ 	int seconds;
+ 	
+-	seconds = ktime_to_ms(now) / 1000;   
++	seconds = div_s64(ktime_to_ms(now), 1000);   
+ 
+ #define SECS_PER_HOUR	(60 * 60)
+ #define SECS_PER_DAY	(SECS_PER_HOUR * 24)
