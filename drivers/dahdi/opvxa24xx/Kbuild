@@ -1,31 +1,51 @@
+# Patched by Magnetic-Fox
+
 obj-$(DAHDI_BUILD_ALL)$(CONFIG_DAHDI_OPVXA24XX) += opvxa24xx.o
 
 FIRM_DIR	:= ../firmware
 
-EXTRA_CFLAGS += -I$(src)/.. -I$(src)/../oct612x/ $(shell $(src)/../oct612x/octasic-helper cflags $(src)/../oct612x) -Wno-undef
+# EXTRA_CFLAGS += -I$(src)/.. -I$(src)/../oct612x/ $(shell $(src)/../oct612x/octasic-helper cflags $(src)/../oct612x) -Wno-undef
+
+ccflags-y +=	-I$(src)/.. \
+	-I$(src)/../oct612x \
+	-I$(src)/../oct612x/include \
+	-I$(src)/../oct612x/octdeviceapi \
+	-I$(src)/../oct612x/octdeviceapi/oct6100api \
+	-Wno-undef \
+	-DDAHDI_HAVE_PROC_OPS \
+	-D'PDE_DATA(x)=pde_data(x)' \
+	-D_binary_zaptel_fw_oct6114_032_bin_size=_binary_dahdi_fw_oct6114_032_bin_size \
+	-D_binary_zaptel_fw_oct6114_064_bin_size=_binary_dahdi_fw_oct6114_064_bin_size \
+	-D_binary_zaptel_fw_oct6114_128_bin_size=_binary_dahdi_fw_oct6114_128_bin_size \
+	-D_binary_zaptel_fw_oct6114_032_bin_start=_binary_dahdi_fw_oct6114_032_bin_start \
+	-D_binary_zaptel_fw_oct6114_064_bin_start=_binary_dahdi_fw_oct6114_064_bin_start \
+	-D_binary_zaptel_fw_oct6114_128_bin_start=_binary_dahdi_fw_oct6114_128_bin_start
 
 DAHDI_KERNEL_H_NAME:=kernel.h
 DAHDI_KERNEL_H_PATH:=$(DAHDI_INCLUDE)/dahdi/$(DAHDI_KERNEL_H_NAME)
 ifneq ($(DAHDI_KERNEL_H_PATH),)
-        DAHDI_SPAN_MODULE:=$(shell if grep -C 5 "struct dahdi_span {" $(DAHDI_KERNEL_H_PATH) | grep -q "struct module \*owner"; then echo "yes"; else echo "no"; fi)
-        DAHDI_SPAN_OPS:=$(shell if grep -q "struct dahdi_span_ops {" $(DAHDI_KERNEL_H_PATH); then echo "yes"; else echo "no"; fi)
-        ifeq ($(DAHDI_SPAN_MODULE),yes)
-                EXTRA_CFLAGS+=-DDAHDI_SPAN_MODULE
-        else
-                ifeq ($(DAHDI_SPAN_OPS),yes)
-                        EXTRA_CFLAGS+=-DDAHDI_SPAN_OPS
-                endif
-        endif
+	DAHDI_SPAN_MODULE:=$(shell if grep -C 5 "struct dahdi_span {" $(DAHDI_KERNEL_H_PATH) | grep -q "struct module \*owner"; then echo "yes"; else echo "no"; fi)
+	DAHDI_SPAN_OPS:=$(shell if grep -q "struct dahdi_span_ops {" $(DAHDI_KERNEL_H_PATH); then echo "yes"; else echo "no"; fi)
+	ifeq ($(DAHDI_SPAN_MODULE),yes)
+#		EXTRA_CFLAGS+=-DDAHDI_SPAN_MODULE
+		ccflags-y += -DDAHDI_SPAN_MODULES
+	else
+		ifeq ($(DAHDI_SPAN_OPS),yes)
+#			EXTRA_CFLAGS+=-DDAHDI_SPAN_OPS
+			ccflags-y += -DDAHDI_SPAN_OPS
+		endif
+	endif
 endif
 
 ifeq ($(HOTPLUG_FIRMWARE),yes)
-  EXTRA_CFLAGS+=-DHOTPLUG_FIRMWARE
+#	EXTRA_CFLAGS+=-DHOTPLUG_FIRMWARE
+	ccflags-y += -DHOTPLUG_FIRMWARE
 endif
 
 opvxa24xx-objs := private.o a24xx.o si321x.o si3050.o ec3000.o callerid.o busydetect.o base.o $(shell $(src)/../oct612x/octasic-helper objects ../oct612x)
 
 ifneq ($(HOTPLUG_FIRMWARE),yes)
-opvxa24xx-objs += $(FIRM_DIR)/dahdi-fw-oct6114-032.o $(FIRM_DIR)/dahdi-fw-oct6114-064.o $(FIRM_DIR)/dahdi-fw-oct6114-128.o
+	opvxa24xx-objs += $(FIRM_DIR)/dahdi-fw-oct6114-032.o $(FIRM_DIR)/dahdi-fw-oct6114-064.o $(FIRM_DIR)/dahdi-fw-oct6114-128.o
 endif
 
 
