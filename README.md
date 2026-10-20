@@ -1,4 +1,4 @@
-# opvxa24xx driver, DAHDI and DKMS configuration files patches
+# opvxa24xx driver, DAHDI and DKMS configuration file patches
 
 ## Introduction
 
