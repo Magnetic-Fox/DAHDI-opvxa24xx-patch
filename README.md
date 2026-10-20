@@ -29,7 +29,7 @@ looked at first.
 ...before going any further
 
 > [!CAUTION]
-> I've tested the opvxa24xx code **partially** only, because I don't
+> I've tested the `opvxa24xx` code **partially** only, because I don't
 > have (yet) A1610E nor A2410E cards. They are quite expensive and
 > I simply need time to be able to afford them.  
 > For now, the driver compiles, DKMS can sign it and it can be loaded
